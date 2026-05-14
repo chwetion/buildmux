@@ -1,0 +1,14 @@
+version: 1
+platforms:
+  linux/amd64:
+    endpoint: tcp://buildkit-amd64.internal:1234
+    tag: "{{.Name}}-amd64"
+    tls:
+      ca_cert: /etc/buildmux/ca.pem
+      cert: /etc/buildmux/client.pem
+      key: /etc/buildmux/client.key
+  linux/arm64:
+    endpoint: unix:///run/buildkit/buildkitd.sock
+    tag: "{{.Name}}-arm64"
+manifest:
+  insecure: false

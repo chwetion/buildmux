@@ -1,0 +1,9 @@
+version: 1
+platforms:
+  linux/amd64:
+    endpoint: tcp://x:1
+    tag: "{{.Name}}-amd64"
+    tls:
+      ca_cert: /etc/ca.pem
+      cert: /etc/cert.pem
+      # key missing on purpose
