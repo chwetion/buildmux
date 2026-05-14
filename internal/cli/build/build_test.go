@@ -134,6 +134,39 @@ manifest:
 	}
 }
 
+func TestExecuteMissingPlatformInConfig(t *testing.T) {
+	cfgYAML := `
+version: 1
+platforms:
+  linux/amd64:
+    endpoint: tcp://amd64:1
+    tag: "{{.Name}}-amd64"
+`
+	dir := t.TempDir()
+	cfgPath := writeFile(t, dir, "buildmux.yaml", cfgYAML)
+
+	runner := &fakeRunner{}
+	opts := Options{
+		ConfigPath:       cfgPath,
+		BuildctlPath:     "buildctl",
+		ManifestToolPath: "manifest-tool",
+		Args: []string{
+			"--opt", "platform=linux/amd64,linux/arm64",
+			"--output", "type=image,name=foo:v1,push=true",
+		},
+	}
+	err := Execute(context.Background(), opts, runner)
+	if err == nil {
+		t.Fatal("expected error for missing platform")
+	}
+	if !strings.Contains(err.Error(), "linux/arm64") {
+		t.Errorf("error should name the missing platform, got: %v", err)
+	}
+	if len(runner.calls) != 0 {
+		t.Errorf("no runner calls should be made when config is missing a platform, got %d", len(runner.calls))
+	}
+}
+
 // helpers
 
 func writeFile(t *testing.T, dir, name, content string) string {
