@@ -1,0 +1,10 @@
+version: 1
+platforms:
+  linux/amd64:
+    endpoint: tcp://buildkit-amd64.internal:1234
+    tag: "{{.Name}}-amd64"
+  linux/arm64:
+    endpoint: tcp://buildkit-arm64.internal:1234
+    tag: "{{.Name}}-arm64"
+manifest:
+  insecure: false
