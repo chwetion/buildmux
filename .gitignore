@@ -1,0 +1,9 @@
+# binaries
+/buildmux
+/bin/
+# go test artifacts
+*.test
+*.out
+# editor
+.vscode/
+.idea/
