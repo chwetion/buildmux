@@ -115,6 +115,13 @@ buildmux build \
 [manifest-tool] Digest: sha256:...
 ```
 
+### 其他子命令
+
+```bash
+buildmux version    # 打印版本、commit、构建日期；也支持 --version / -v
+buildmux help       # 打印用法；也支持 --help / -h
+```
+
 ### buildmux 自己的 flag
 
 | flag | 说明 | 默认 |
@@ -204,6 +211,34 @@ go build -o testdata/bin/fake-manifest-tool ./testdata/stubs/fake-manifest-tool
 ### 新增平台
 
 只要在 `buildmux.yaml` 的 `platforms:` 下加一个 key（如 `linux/ppc64le`），指定它的 `endpoint` 和 `tag`，就可以在调用时把它写进 `--opt platform=`。无需改代码。
+
+## 发布
+
+发布流程基于 [GoReleaser](https://goreleaser.com) + GitHub Actions（配置见 `.goreleaser.yaml` 和 `.github/workflows/release.yml`）。
+
+打 tag 即触发：
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+GH Actions 会：
+
+1. 跑一次 `go test ./...` 和 `go vet ./...`
+2. 用 GoReleaser 交叉编译 `linux/{amd64,arm64}` 和 `darwin/{amd64,arm64}` 共 4 份二进制
+3. 通过 `-ldflags` 注入版本号、commit 和构建日期（`buildmux version` 可看到）
+4. 打成 `buildmux_<version>_<os>_<arch>.tar.gz`（含二进制 + README + 示例配置）
+5. 生成 `checksums.txt`（SHA256）
+6. 创建/更新对应的 GitHub Release，附上由 conventional commits 生成的 changelog
+
+本地干跑（不推送 tag）：
+
+```bash
+goreleaser release --snapshot --clean
+```
+
+产物会出现在 `dist/` 目录。
 
 ## 许可
 

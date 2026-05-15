@@ -15,10 +15,19 @@ import (
 	bxexec "github.com/chwetion/buildmux/internal/exec"
 )
 
+// Populated at build time via -ldflags "-X main.version=..." etc.
+// goreleaser injects these on tagged releases; `go build` from source leaves them at the defaults.
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
+
 const usage = `buildmux: multiplex buildctl across per-platform buildkitd endpoints.
 
 Usage:
   buildmux build [--config <path>] [--buildctl <path>] [--manifest-tool <path>] [--] [buildctl-args...]
+  buildmux version
 
   All args after "build" are forwarded to buildctl, except that --opt platform=...
   and --output are intercepted and rewritten per-platform. Use "--" to disambiguate
@@ -38,6 +47,9 @@ func main() {
 	switch os.Args[1] {
 	case "build":
 		os.Exit(runBuild(os.Args[2:]))
+	case "version", "-v", "--version":
+		fmt.Printf("buildmux %s (commit %s, built %s)\n", version, commit, date)
+		return
 	case "-h", "--help", "help":
 		fmt.Print(usage)
 		return
